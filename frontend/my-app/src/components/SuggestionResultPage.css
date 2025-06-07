@@ -1,0 +1,134 @@
+.suggestion-result-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.suggestion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.back-button {
+    background: none;
+    border: 1px solid #6b4eff;
+    color: #6b4eff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.back-button:hover {
+    background-color: #6b4eff;
+    color: white;
+}
+
+.suggestion-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+.suggestion-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.price-section, .comment-section {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.price-section h3, .comment-section h3, .components-section h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.total-price {
+    font-size: 2rem;
+    color: #6b4eff;
+    font-weight: 500;
+}
+
+.comment {
+    color: #666;
+    line-height: 1.6;
+}
+
+.component-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.component-header {
+    background-color: #f8f5ff;
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.component-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.model-details {
+    padding: 1.5rem;
+}
+
+.model-main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.model-main-info h5 {
+    margin: 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.model-price {
+    color: #6b4eff;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.model-info {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.model-description {
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.model-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #6b4eff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.model-link:hover {
+    text-decoration: underline;
+} 
