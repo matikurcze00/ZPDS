@@ -25,54 +25,58 @@ const SetsPage: React.FC = () => {
         fetchSets();
     }, []);
 
-    const handleBack = () => {
-        setSelectedSet(null);
-    };
-
     if (isLoading) {
-        return <div className="sets-loading">Ładowanie zestawów...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
     if (error) {
-        return <div className="sets-error">Błąd: {error}</div>;
+        return <div className="error">{error}</div>;
     }
 
     if (selectedSet) {
-        return <SuggestionResultPage suggestion={selectedSet} onBack={handleBack} />;
+        return <SuggestionResultPage suggestion={selectedSet} onBack={() => setSelectedSet(null)} />;
     }
+
+    const gamingSets = sets.filter(set => set.category === 'gaming');
+    const officeSets = sets.filter(set => set.category === 'office');
+
+    const renderSetCard = (set: Suggestion) => {
+        const topComponents = set.components.slice(0, 3);
+        
+        return (
+            <div key={set.name} className="set-card" onClick={() => setSelectedSet(set)}>
+                <h3>{set.name}</h3>
+                <p className="set-price">{set.price} PLN</p>
+                <p className="set-description">{set.description}</p>
+                <div className="set-components">
+                    <h4>Główne komponenty:</h4>
+                    <ul>
+                        {topComponents.map(component => (
+                            <li key={component.name}>
+                                {component.name}: {component.models[0].name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="sets-page">
-            <h2>Gotowe zestawy komputerowe</h2>
-            <div className="sets-grid">
-                {sets.map((set, index) => (
-                    <div 
-                        key={index} 
-                        className="set-card"
-                        onClick={() => setSelectedSet(set)}
-                    >
-                        <div className="set-header">
-                            <h3>{set.name}</h3>
-                            <span className="set-price">{set.price} PLN</span>
-                        </div>
-                        <p className="set-description">{set.description}</p>
-                        <div className="set-components">
-                            <h4>Główne komponenty:</h4>
-                            <ul>
-                                {set.components.slice(0, 3).map((component, idx) => (
-                                    <li key={idx}>
-                                        <span className="component-name">{component.name}:</span>
-                                        <span className="component-model">{component.models[0].name}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <button className="view-details">
-                            Zobacz szczegóły →
-                        </button>
-                    </div>
-                ))}
-            </div>
+            <section className="sets-category">
+                <h2>Zestawy Gamingowe</h2>
+                <div className="sets-row">
+                    {gamingSets.map(set => renderSetCard(set))}
+                </div>
+            </section>
+            
+            <section className="sets-category">
+                <h2>Zestawy Biurowe</h2>
+                <div className="sets-row">
+                    {officeSets.map(set => renderSetCard(set))}
+                </div>
+            </section>
         </div>
     );
 };
