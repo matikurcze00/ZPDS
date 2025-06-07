@@ -1,17 +1,17 @@
 # ZPDS
 Project for product management in data science classes
 
-# Frontend
+## Frontend
 Requierements: Node.js (pref 22.16V)
 
-## Installation:
+### Installation:
 1. Move to /frontend/my-app
 2. Use command:
 ```bash
 npm install
 ```
 
-## Usage
+### Usage
 
 ```bash
 npm run dev
