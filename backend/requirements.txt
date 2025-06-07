@@ -1,0 +1,8 @@
+Flask == 3.0.0
+flask-sqlalchemy
+flask-httpauth
+numpy
+pyodbc
+pyjwt
+psycopg2
+pymssql
