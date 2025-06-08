@@ -8,19 +8,19 @@ api_bp = Blueprint("api_bp", __name__, url_prefix="/")
 @api_bp.route("/getComponents", methods=["GET"])
 def get_components():
     all_components = {
-        "cpu": CPU.query.all(),
-        "gpu": GPU.query.all(),
-        "motherboard": Motherboard.query.all(),
-        "ram": RAM.query.all(),
-        "power_supply": PowerSupply.query.all(),
-        "case": Case.query.all(),
-        "storage_drive": StorageDrive.query.all(),
-        "cpu_Cooler": CPUCooler.query.all(),
+        "cpu": [c.to_json() for c in CPU.query.all()],
+        "gpu": [c.to_json() for c in GPU.query.all()],
+        "motherboard": [c.to_json() for c in Motherboard.query.all()],
+        "ram": [c.to_json() for c in RAM.query.all()],
+        "power_supply": [c.to_json() for c in PowerSupply.query.all()],
+        "case": [c.to_json() for c in Case.query.all()],
+        "storage_drive": [c.to_json() for c in StorageDrive.query.all()],
+        "cpu_Cooler": [c.to_json() for c in CPUCooler.query.all()],
     }
     return jsonify(all_components)
 
 
-@api_bp.route("/getSuggestions/<int:parameter>", methods=["GET"])
+@api_bp.route("/getSuggestions/<int:parameter>", methods=["POST"])
 def get_suggestions(parameter):
     return jsonify(
         f"This is a placeholder for the getSuggestions endpoint. parameter={parameter}"
