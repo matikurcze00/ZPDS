@@ -33,7 +33,7 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-        with open("dataset.json", "r") as f:
+        with open("backend/dataset.json", "r") as f:
             data = json.load(f)
 
         for part_type, part_class in parts_to_load:
