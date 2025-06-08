@@ -1,6 +1,4 @@
 .suggestion-result-page {
-    max-width: 1200px;
-    margin: 0 auto;
     padding: 2rem;
 }
 
@@ -8,29 +6,30 @@
     display: flex;
     align-items: center;
     margin-bottom: 2rem;
-    gap: 1rem;
+    gap: 2rem;
 }
 
 .back-button {
-    background: none;
-    border: 1px solid #6b4eff;
-    color: #6b4eff;
     padding: 0.5rem 1rem;
+    border: none;
+    background-color: #f0f0f0;
+    color: #666;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.2s;
 }
 
 .back-button:hover {
-    background-color: #6b4eff;
-    color: white;
+    background-color: #e0e0e0;
 }
 
 .suggestion-header h2 {
     margin: 0;
     color: #333;
     font-size: 1.8rem;
+    flex-grow: 1;
+    text-align: center;
 }
 
 .suggestion-content {
@@ -39,15 +38,27 @@
     gap: 2rem;
 }
 
-.price-section, .comment-section {
-    background-color: white;
-    border: 1px solid #e0e0e0;
+.suggestion-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    background-color: #f8f5ff;
+    padding: 2rem;
     border-radius: 8px;
-    padding: 1.5rem;
 }
 
-.price-section h3, .comment-section h3, .components-section h3 {
-    margin: 0 0 1rem 0;
+.price-section,
+.description-section,
+.comment-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.price-section h3,
+.description-section h3,
+.comment-section h3 {
+    margin: 0;
     color: #333;
     font-size: 1.2rem;
 }
@@ -58,16 +69,31 @@
     font-weight: 500;
 }
 
+.description,
 .comment {
     color: #666;
-    line-height: 1.6;
+    line-height: 1.5;
+}
+
+.components-section {
+    margin-top: 1rem;
+}
+
+.components-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: #333;
+    font-size: 1.4rem;
+}
+
+.components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
 .component-card {
-    background-color: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    margin-bottom: 1rem;
     overflow: hidden;
 }
 
@@ -81,54 +107,47 @@
     margin: 0;
     color: #333;
     font-size: 1.1rem;
+    text-align: center;
+    text-transform: capitalize;
 }
 
-.model-details {
-    padding: 1.5rem;
+.component-details {
+    padding: 1rem;
 }
 
-.model-main-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.model-main-info h5 {
-    margin: 0;
+.component-details h5 {
+    margin: 0 0 0.5rem 0;
     color: #333;
     font-size: 1rem;
 }
 
-.model-price {
+.component-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+}
+
+.component-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.component-price {
     color: #6b4eff;
     font-weight: 500;
-    font-size: 1.1rem;
 }
 
-.model-info {
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    padding: 1rem;
-    margin: 1rem 0;
-}
-
-.model-description {
-    color: #666;
-    margin: 0;
-    line-height: 1.5;
-    font-size: 0.9rem;
-    display: block;
-}
-
-.model-link {
-    display: inline-block;
-    margin-top: 1rem;
+.component-link {
     color: #6b4eff;
     text-decoration: none;
-    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.2s;
 }
 
-.model-link:hover {
+.component-link:hover {
+    color: #5333ff;
     text-decoration: underline;
 } 

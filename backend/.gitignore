@@ -1,5 +1,36 @@
-*/__pycache__
-__pycache__
-.vscode
-venv*
-tmp*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+backendvenv/
+env/
+ENV/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Local development
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+*.db
+*.sqlite
+*.sqlite3

@@ -1,14 +1,20 @@
 import React from 'react';
-import { Suggestion } from '../types/Suggestion';
+import { Component } from '../types/Component';
 import './SuggestionResultPage.css';
 
 interface SuggestionResultPageProps {
-    suggestion: Suggestion;
+    components: Component[];
+    totalPrice: number;
+    description: string;
+    aiComment: string;
     onBack: () => void;
 }
 
 const SuggestionResultPage: React.FC<SuggestionResultPageProps> = ({
-    suggestion,
+    components,
+    totalPrice,
+    description,
+    aiComment,
     onBack
 }) => {
     return (
@@ -17,43 +23,44 @@ const SuggestionResultPage: React.FC<SuggestionResultPageProps> = ({
                 <button className="back-button" onClick={onBack}>
                     ← Wstecz
                 </button>
-                <h2>Sugerowana konfiguracja</h2>
+                <h2>Konfiguracja Zbalansowana</h2>
             </div>
 
             <div className="suggestion-content">
-                <div className="price-section">
-                    <h3>Całkowita cena:</h3>
-                    <div className="total-price">{suggestion.price} PLN</div>
-                </div>
-
-                <div className="comment-section">
-                    <h3>Komentarz AI:</h3>
-                    <div className="comment">{suggestion.comment}</div>
+                <div className="suggestion-info">
+                    <div className="price-section">
+                        <h3>Całkowita cena:</h3>
+                        <span className="total-price">{totalPrice} PLN</span>
+                    </div>
+                    <div className="description-section">
+                        <h3>Opis:</h3>
+                        <p className="description">{description}</p>
+                    </div>
+                    <div className="comment-section">
+                        <h3>Komentarz AI:</h3>
+                        <p className="comment">{aiComment}</p>
+                    </div>
                 </div>
 
                 <div className="components-section">
-                    <h3>Sugerowane komponenty:</h3>
-                    {suggestion.components.map(component => (
-                        <div key={component.name} className="component-card">
-                            <div className="component-header">
-                                <h4>{component.name}</h4>
-                            </div>
-                            {component.models.map(model => (
-                                <div key={model.name} className="model-details">
-                                    <div className="model-main-info">
-                                        <h5>{model.name}</h5>
-                                        <span className="model-price">{model.price} PLN</span>
-                                    </div>
-                                    <div className="model-info">
-                                        <p className="model-description">{model.description}</p>
-                                    </div>
-                                    <a href={model.link} target="_blank" rel="noopener noreferrer" className="model-link">
-                                        Zobacz szczegóły →
-                                    </a>
+                    <h3>Komponenty:</h3>
+                    <div className="components-grid">
+                        {components.map((component, index) => (
+                            <div key={index} className="component-card">
+                                <div className="component-header">
+                                    <h4>{component.type}</h4>
                                 </div>
-                            ))}
-                        </div>
-                    ))}
+                                <div className="component-details">
+                                    <h5>{component.model}</h5>
+                                    <p className="component-description">{component.description}</p>
+                                    <div className="component-footer">
+                                        <span className="component-price">{component.price} PLN</span>
+                                        <a href="#" className="component-link">Zobacz szczegóły →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

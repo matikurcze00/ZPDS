@@ -20,76 +20,86 @@ const ComponentPanel: React.FC<ComponentPanelProps> = ({
 
     const filteredModels = component.models.filter(model =>
         model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        model.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (model.description && model.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const isModelSelected = (model: Model) => {
-        return selectedModels.some(selected => selected.name === model.name);
+        return selectedModels.some(selected => selected.id === model.id);
     };
 
     return (
         <div className="component-panel">
-            <button 
+            <button
                 className={`panel-header ${isExpanded ? 'expanded' : ''}`}
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <span className="component-name">{component.name}</span>
                 <span className="expand-icon">{isExpanded ? '▼' : '▶'}</span>
             </button>
-            
+
             {isExpanded && (
                 <div className="panel-content">
+                    {/* Selected Models Section */}
+                    {selectedModels.length > 0 && (
+                        <div className="selected-models-section">
+                            <h4>Wybrane komponenty:</h4>
+                            {selectedModels.map(model => (
+                                <div key={model.id} className="selected-model">
+                                    <div className="model-info">
+                                        <div className="model-name">{model.name}</div>
+                                        <div className="model-price">{model.price} PLN</div>
+                                        {model.description && (
+                                            <div className="model-description">{model.description}</div>
+                                        )}
+                                    </div>
+                                    <button
+                                        className="remove-button"
+                                        onClick={() => onModelRemove(model)}
+                                    >
+                                        Usuń
+                                    </button>
+                                </div>
+                            ))}
+                            <div className="section-divider"></div>
+                        </div>
+                    )}
+
+                    {/* Search Bar */}
                     <div className="search-bar">
                         <input
                             type="text"
-                            placeholder="Wyszukaj po nazwie lub opisie..."
+                            placeholder="Szukaj komponentów..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
 
-                    <div className="models-list">
-                        {filteredModels.map(model => {
-                            const selected = isModelSelected(model);
-                            return (
-                                <div 
-                                    key={model.name} 
-                                    className={`model-item ${selected ? 'selected' : ''}`}
-                                    onClick={() => !selected && onModelSelect(model)}
-                                    title={model.description}
+                    {/* Available Models Section */}
+                    <div className="available-models-section">
+                        <h4>Dostępne komponenty:</h4>
+                        <div className="models-list">
+                            {filteredModels.map(model => (
+                                <div
+                                    key={model.id}
+                                    className={`model-item ${isModelSelected(model) ? 'selected' : ''}`}
+                                    onClick={() => !isModelSelected(model) && onModelSelect(model)}
                                 >
                                     <div className="model-info">
-                                        <span className="model-name">{model.name}</span>
-                                        <span className="model-description">{model.description}</span>
+                                        <div className="model-name">{model.name}</div>
+                                        {model.description && (
+                                            <div className="model-description">{model.description}</div>
+                                        )}
                                     </div>
                                     <div className="model-right">
-                                        <span className="model-price">{model.price} PLN</span>
-                                        {selected && <span className="selected-badge">Wybrano</span>}
+                                        <div className="model-price">{model.price} PLN</div>
+                                        {isModelSelected(model) && (
+                                            <div className="selected-badge">Wybrano</div>
+                                        )}
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {selectedModels.length > 0 && (
-                        <div className="selected-models">
-                            <h4>Wybrane modele:</h4>
-                            {selectedModels.map(model => (
-                                <div key={model.name} className="selected-model" title={model.description}>
-                                    <div className="model-info">
-                                        <span>{model.name}</span>
-                                        <span className="model-description">{model.description}</span>
-                                    </div>
-                                    <button 
-                                        className="remove-button"
-                                        onClick={() => onModelRemove(model)}
-                                    >
-                                        ✕
-                                    </button>
                                 </div>
                             ))}
                         </div>
-                    )}
+                    </div>
                 </div>
             )}
         </div>

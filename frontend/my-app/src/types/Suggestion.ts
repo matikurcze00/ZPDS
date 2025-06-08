@@ -1,21 +1,17 @@
-import { Component } from './Component';
+import { Component as ComponentType, Model } from './Component';
 
 export interface SuggestionRequest {
-    components: Component[];
+    components: { [key: string]: number }; // component type -> model id
     price: number;
     purposes: string[];
 }
 
-export interface ComponentModel {
+export interface SuggestionComponent {
+    id: number;
     name: string;
-    link: string;
     price: number;
     description: string;
-}
-
-export interface Component {
-    name: string;
-    models: ComponentModel[];
+    link: string;
 }
 
 export interface Suggestion {
@@ -23,6 +19,6 @@ export interface Suggestion {
     description: string;
     price: number;
     category: 'gaming' | 'office';
-    components: Component[];
+    components: { [key: string]: SuggestionComponent };
     comment: string;
 } 

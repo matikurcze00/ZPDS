@@ -8,7 +8,11 @@ interface ConfigurationPageProps {
     components: Component[];
     isLoading: boolean;
     error: string | null;
-    onConfigurationSubmit: (formData: { price: number; purposes: string[] }) => void;
+    onConfigurationSubmit: (formData: { 
+        price: number; 
+        purposes: string[];
+        selectedModels: { [key: string]: Model[] };
+    }) => void;
 }
 
 interface SelectedModels {
@@ -26,14 +30,14 @@ const ConfigurationPage: React.FC<ConfigurationPageProps> = ({
     const handleModelSelect = (componentName: string, model: Model) => {
         setSelectedModels(prev => ({
             ...prev,
-            [componentName]: [...(prev[componentName] || []), model]
+            [componentName]: [model] // Only allow one model per component
         }));
     };
 
     const handleModelRemove = (componentName: string, modelToRemove: Model) => {
         setSelectedModels(prev => ({
             ...prev,
-            [componentName]: prev[componentName].filter(model => model.name !== modelToRemove.name)
+            [componentName]: []
         }));
     };
 
@@ -47,7 +51,10 @@ const ConfigurationPage: React.FC<ConfigurationPageProps> = ({
 
     return (
         <div className="configuration-page">
-            <ConfigurationForm onSubmit={onConfigurationSubmit} />
+            <ConfigurationForm 
+                onSubmit={onConfigurationSubmit}
+                selectedModels={selectedModels}
+            />
             <div className="components-section">
                 <h3>Select Components</h3>
                 {components.map(component => (

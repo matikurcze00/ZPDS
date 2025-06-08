@@ -1,4 +1,5 @@
 export interface Model {
+    id: number;
     name: string;
     link: string;
     price: number;
@@ -6,6 +7,8 @@ export interface Model {
 }
 
 export interface Component {
-    name: string;
-    models: Model[];
+    type: string;
+    model: string;
+    description: string;
+    price: number;
 } 

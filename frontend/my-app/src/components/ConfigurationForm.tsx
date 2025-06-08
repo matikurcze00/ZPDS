@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import './ConfigurationForm.css';
 
-interface ConfigurationFormProps {
-  onSubmit: (formData: { price: number; purposes: string[] }) => void;
-}
-
 type Purposes = {
-  'Gry': boolean;
-  'Praca biurowa': boolean;
-  'Tworzenie treści / edycja wideo': boolean;
-  'Programowanie': boolean;
-  'Przeglądanie internetu / multimedia': boolean;
+  [key: string]: boolean;
+};
+
+interface ConfigurationFormProps {
+  onSubmit: (formData: {
+    price: number;
+    purposes: string[];
+    selectedModels: { [key: string]: any[] };
+  }) => void;
+  selectedModels: { [key: string]: any[] };
 }
 
-const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit }) => {
+const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit, selectedModels }) => {
   const [priceRange, setPriceRange] = useState(4500);
   const [purposes, setPurposes] = useState<Purposes>({
     'Gry': false,
@@ -37,7 +38,8 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit }) => {
 
     onSubmit({
       price: priceRange,
-      purposes: selectedPurposes
+      purposes: selectedPurposes,
+      selectedModels: selectedModels
     });
   };
 
@@ -52,16 +54,17 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit }) => {
           <div className="price-slider-container">
             <input
               type="range"
-              min="1000"
-              max="10000"
+              min="2000"
+              max="15000"
+              step="100"
               value={priceRange}
               onChange={(e) => setPriceRange(Number(e.target.value))}
               className="price-slider"
             />
             <div className="price-labels">
-              <span>1000</span>
+              <span>2000</span>
               <span className="current-price">{priceRange}</span>
-              <span>10000</span>
+              <span>15000</span>
             </div>
           </div>
         </div>
@@ -69,11 +72,11 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit }) => {
         <div className="form-section purposes-section">
           <h3>Przeznaczenie komputera</h3>
           <div className="purposes-grid">
-            {(Object.keys(purposes) as Array<keyof Purposes>).map(purpose => (
+            {Object.entries(purposes).map(([purpose, isSelected]) => (
               <label key={purpose} className="purpose-checkbox">
                 <input
                   type="checkbox"
-                  checked={purposes[purpose]}
+                  checked={isSelected}
                   onChange={() => handlePurposeChange(purpose)}
                 />
                 {purpose}
@@ -84,7 +87,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ onSubmit }) => {
 
         <div className="form-section button-section">
           <button 
-            className="submit-button"
+            className="match-button"
             onClick={handleSubmit}
           >
             Dopasuj
