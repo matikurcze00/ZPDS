@@ -173,6 +173,9 @@ class CPUCooler(Base):
             price=data.get("price", 0.0),
         )
 
+    def get_description(self):
+        return f"{self.name} - socket {self.socket}, rozmiar {self.size}mm"
+
     def is_compatible(self, motherboard):
         """
         Check if the cooler is compatible with the given Motherboard.
