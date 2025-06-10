@@ -120,6 +120,14 @@ class CPU(Base):
             price=data.get("price", 0.0),
         )
 
+    def is_compatible(self, motherboard):
+        """
+        Check if the CPU is compatible with the given motherboard, RAM, and GPU.
+        :param motherboard: Motherboard object to check against.
+        :return: True if compatible, False otherwise.
+        """
+        return self.socket == motherboard.socket
+
 
 class CPUCooler(Base):
     __tablename__ = "cpu_coolers"
@@ -164,6 +172,14 @@ class CPUCooler(Base):
             size=data.get("size", 0.0),
             price=data.get("price", 0.0),
         )
+
+    def is_compatible(self, motherboard):
+        """
+        Check if the cooler is compatible with the given Motherboard.
+        :param motherboard: Motherboard object to check against.
+        :return: True if compatible, False otherwise.
+        """
+        return self.socket == motherboard.socket
 
 
 class GPU(Base):
@@ -211,6 +227,14 @@ class GPU(Base):
 
     def get_description(self):
         return f"{self.name} - socket {self.socket}, " f"rozmiar {self.size}mm"
+
+    def fits(self, case) -> bool:
+        """
+        Check if the GPU fits in the given case.
+        :param case: Case object to check against.
+        :return: True if it fits, False otherwise.
+        """
+        return self.length <= case.max_gpu_length_mm
 
     @classmethod
     def from_dict(self, data: dict):
@@ -307,6 +331,14 @@ class Motherboard(Base):
             f"pamięć {self.mem_type}"
         )
 
+    def fits_in(self, case):
+        """
+        Check if the motherboard fits in the given case.
+        :param case: Case object to check against.
+        :return: True if it fits, False otherwise.
+        """
+        return self.form_factor in case.type
+
 
 class RAM(Base):
     __tablename__ = "memory"
@@ -379,6 +411,18 @@ class RAM(Base):
             f"{self.mem_type} {self.speed_mhz}MHz"
         )
 
+    def is_compatible(self, motherboard):
+        """
+        Check if the RAM is compatible with the given motherboard.
+        :param motherboard: Motherboard object to check against.
+        :return: True if compatible, False otherwise.
+        """
+        return (
+            self.mem_type == motherboard.mem_type
+            and self.capacity_gb <= motherboard.max_memory
+            and self.sticks <= motherboard.memory_slots
+        )
+
 
 class PowerSupply(Base):
     __tablename__ = "power_supplies"
@@ -441,6 +485,16 @@ class PowerSupply(Base):
             f"{self.efficiency}, "
             f"{'modularny' if self.modular else 'niemodularny'}"
         )
+
+    def is_capable(self, motherboard, gpu, cpu):
+        """
+        Check if the power supply is compatible with the given motherboard and GPU.
+        :param motherboard: Motherboard object to check against.
+        :param gpu: GPU object to check against.
+        :return: True if compatible, False otherwise.
+        """
+        # TODO For simplicity, assume all PSUs are compatible with all motherboards
+        return self.wattage >= (cpu.tdp + gpu.tdp) * 1.2  # 20% overhead for safety
 
 
 class Case(Base):
@@ -578,6 +632,15 @@ class StorageDrive(Base):
             f"{self.capacity}GB, "
             f"interfejs {self.interface}"
         )
+
+    def is_compatible(self, motherboard):
+        """
+        Check if the storage drive is compatible with the given motherboard.
+        :param motherboard: Motherboard object to check against.
+        :return: True if compatible, False otherwise.
+        """
+        # TODO For simplicity, assume all drives are compatible with all motherboards
+        return True
 
 
 # ────────────────────────────

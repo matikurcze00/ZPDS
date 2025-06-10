@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response
 from models import *
 from database import db
+from suggestions import get_component_from_db, validate_set
 import random
 from sqlalchemy import distinct
 
@@ -113,3 +114,22 @@ def get_cpus():
 def get_gpus():
     all_gpus = GPU.query.all()
     return jsonify([c.to_json() for c in all_gpus])
+
+
+@api_bp.route("/getComponent", methods=["POST"])
+def get_component():
+    data = request.get_json()
+    return jsonify(
+        [
+            c.to_json()
+            for c in get_component_from_db(
+                data.get("component_type", ""), data.get("component_name", "")
+            )
+        ]
+    )
+
+
+@api_bp.route("/validate", methods=["POST"])
+def validate():
+    data = request.get_json()
+    return jsonify(validate_set(data.get("components", {})))
