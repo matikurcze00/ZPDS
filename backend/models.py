@@ -46,6 +46,8 @@ Base = db.Model
 #  Core part tables
 # ────────────────────────────
 
+DOLLAR_TO_PLN = 3.72  # Example conversion rate, adjust as needed
+
 
 class CPU(Base):
     __tablename__ = "cpus"
@@ -89,7 +91,7 @@ class CPU(Base):
             "id": self.id,
             "name": self.name,
             "socket": self.socket,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
             "core_count": self.core_count,
             "core_clock": self.core_clock,
             "boost_clock": self.boost_clock,
@@ -160,7 +162,7 @@ class CPUCooler(Base):
             "socket": self.socket,
             "color": self.color,
             "size": self.size,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod
@@ -190,6 +192,7 @@ class GPU(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    chipset = Column(String, index=True)  # np. "RTX 3060", "RX 6700 XT"
     length = Column(Float)  # ważne dla obudowy
     memory = Column(Float)
     core_clock = Column(Float)
@@ -200,6 +203,7 @@ class GPU(Base):
     def __init__(
         self,
         name,
+        chipset=None,
         length=0.0,
         memory=0.0,
         core_clock=0.0,
@@ -209,6 +213,7 @@ class GPU(Base):
     ):
         super().__init__()
         self.name = name
+        self.chipset = chipset
         self.length = length
         self.memory = memory
         self.core_clock = core_clock
@@ -220,16 +225,14 @@ class GPU(Base):
         return {
             "id": self.id,
             "name": self.name,
+            "chipset": self.chipset,
             "length": self.length,
             "memory": self.memory,
             "core_clock": self.core_clock,
             "boost_clock": self.boost_clock,
             "tdp": self.tdp,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
-
-    def get_description(self):
-        return f"{self.name} - socket {self.socket}, " f"rozmiar {self.size}mm"
 
     def fits(self, case) -> bool:
         """
@@ -243,6 +246,7 @@ class GPU(Base):
     def from_dict(self, data: dict):
         return GPU(
             name=data.get("name"),
+            chipset=data.get("chipset"),
             length=data.get("length", 0.0),
             memory=data.get("memory", 0.0),
             core_clock=data.get("core_clock", 0.0),
@@ -310,7 +314,7 @@ class Motherboard(Base):
             "memory_slots": self.memory_slots,
             "m2_slots": self.m2_slots,
             "color": self.color,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod
@@ -391,7 +395,7 @@ class RAM(Base):
             "first_word_latency": self.first_word_latency,
             "cas_latency": self.cas_latency,
             "color": self.color,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod
@@ -467,7 +471,7 @@ class PowerSupply(Base):
             "modular": self.modular,
             "efficiency": self.efficiency,
             "color": self.color,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod
@@ -551,7 +555,7 @@ class Case(Base):
             "internal_35_bays": self.internal_35_bays,
             "side_panel": self.side_panel,
             "color": self.color,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod
@@ -614,7 +618,7 @@ class StorageDrive(Base):
             "form_factor": self.form_factor,
             "capacity": self.capacity,
             "cache": self.cache,
-            "price": self.price,
+            "price": round(self.price * DOLLAR_TO_PLN, 2),
         }
 
     @classmethod

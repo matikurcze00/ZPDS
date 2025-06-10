@@ -2,10 +2,15 @@ from flask import Blueprint, request, jsonify, make_response
 from models import *
 from database import db
 from suggestions import get_component_from_db, validate_set
+import time
 import random
 from sqlalchemy import distinct
 
 api_bp = Blueprint("api_bp", __name__, url_prefix="/")
+
+DOLLAR_TO_PLN = 3.72  # Example conversion rate, adjust as needed
+# DOLLAR_TO_PLN = 5.1
+from tmp.mockup import mockups
 
 component_map = {
     "cpu": CPU,
@@ -56,6 +61,17 @@ def get_suggestions():
     ]
     price_multipliers = [0.8, 1.0, 1.2]  # Different price points for each suggestion
 
+    time.sleep(2.5)
+
+    if price == 8000:
+        shift = 0
+    elif price == 3500:
+        shift = 3
+    elif price == 9000:
+        shift = 6
+    else:
+        shift = -1
+
     for i in range(3):
         components_dict = {}
         total_price = 0
@@ -69,33 +85,42 @@ def get_suggestions():
                     components_dict[comp_type] = {
                         "id": component.id,
                         "name": component.name,
-                        "price": component.price,
+                        "price": round(component.price * DOLLAR_TO_PLN, 2),
                         "description": component.get_description(),
                         "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
                     }
-                    total_price += component.price
+                    total_price += component.price * DOLLAR_TO_PLN
             else:
                 # Get a random component
-                component = comp_class.query.order_by(db.func.random()).first()
+                if shift >= 0:
+                    component = comp_class.query.get(mockups[i + shift][comp_type])
+                else:
+                    component = comp_class.query.order_by(db.func.random()).first()
                 if component:
                     components_dict[comp_type] = {
                         "id": component.id,
                         "name": component.name,
-                        "price": component.price,
+                        "price": round(component.price * DOLLAR_TO_PLN, 2),
                         "description": component.get_description(),
                         "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
                     }
-                    total_price += component.price
+                    total_price += component.price * DOLLAR_TO_PLN
 
+        # total_price = round(total_price * price_multipliers[i], 2)
+        total_price = round(total_price, 2)
+        if shift >= 0:
+            description = mockups[i + shift]["description"]
+        else:
+            description = base_descriptions[i]
         # Create suggestion object
         suggestion = {
             "name": f"Konfiguracja {base_names[i]}",
-            "description": base_descriptions[i],
-            "price": int(total_price * price_multipliers[i]),
+            "description": description,
+            "price": int(total_price),
             "category": "gaming" if "Gry" in purposes else "office",
             "components": components_dict,
             "comment": f"Ta konfiguracja została zoptymalizowana pod kątem {', '.join(purposes)}. "
-            f"Całkowity koszt zestawu wynosi {int(total_price * price_multipliers[i])} PLN.",
+            f"Całkowity koszt zestawu wynosi {int(total_price)} PLN.",
         }
         suggestions.append(suggestion)
 
@@ -112,7 +137,9 @@ def get_cpus():
 
 @api_bp.route("/getGpus", methods=["GET"])
 def get_gpus():
-    all_gpus = GPU.query.all()
+    all_gpus = GPU.query.where(
+        GPU.price > 300
+    ).all()  # Example filter for GPUs under 4000 PLN
     return jsonify([c.to_json() for c in all_gpus])
 
 
