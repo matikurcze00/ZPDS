@@ -17,39 +17,6 @@ component_map = {
     "cpu_cooler": CPUCooler,
 }
 
-def generate_component_description(component, comp_type):
-    """Generate a description for a component based on its type and attributes."""
-    if comp_type == "cpu":
-        return (f"{component.name} - {component.core_count} rdzeni, "
-                f"taktowanie bazowe {component.core_clock}GHz, "
-                f"boost do {component.boost_clock}GHz, "
-                f"socket {component.socket}")
-    elif comp_type == "gpu":
-        return (f"{component.name} - {component.memory}GB pamięci, "
-                f"taktowanie rdzenia {component.core_clock}MHz, "
-                f"TDP {component.tdp}W")
-    elif comp_type == "motherboard":
-        return (f"{component.name} - socket {component.socket}, "
-                f"format {component.form_factor}, "
-                f"pamięć {component.mem_type}")
-    elif comp_type == "ram":
-        return (f"{component.name} - {component.capacity_gb}GB x{component.sticks}, "
-                f"{component.mem_type} {component.speed_mhz}MHz")
-    elif comp_type == "power_supply":
-        return (f"{component.name} - {component.wattage}W, "
-                f"{component.efficiency}, "
-                f"{'modularny' if component.modular else 'niemodularny'}")
-    elif comp_type == "case":
-        return (f"{component.name} - {component.type}, "
-                f"max. długość GPU {component.max_gpu_length_mm}mm")
-    elif comp_type == "storage_drive":
-        return (f"{component.name} - {component.type}, "
-                f"{component.capacity}GB, "
-                f"interfejs {component.interface}")
-    elif comp_type == "cpu_cooler":
-        return (f"{component.name} - socket {component.socket}, "
-                f"rozmiar {component.size}mm")
-    return f"{component.name}"
 
 @api_bp.route("/getComponents", methods=["GET"])
 def get_components():
@@ -58,25 +25,25 @@ def get_components():
         # Get all components but ensure unique names by using first() for each distinct name
         unique_components = []
         seen_names = set()
-        
+
         for component in comp_class.query.order_by(comp_class.id).all():
             if component.name not in seen_names:
                 seen_names.add(component.name)
                 unique_components.append(component)
-        
-        all_components.append({
-            "name": comp_type,
-            "models": [c.to_json() for c in unique_components]
-        })
+
+        all_components.append(
+            {"name": comp_type, "models": [c.to_json() for c in unique_components]}
+        )
 
     return jsonify(all_components)
+
 
 @api_bp.route("/getSuggestions", methods=["POST"])
 def get_suggestions():
     data = request.get_json()
-    price = data.get('price', 0)
-    purposes = data.get('purposes', [])
-    selected = data.get('components', {})
+    price = data.get("price", 0)
+    purposes = data.get("purposes", [])
+    selected = data.get("components", {})
 
     # Create three variations of suggestions
     suggestions = []
@@ -84,7 +51,7 @@ def get_suggestions():
     base_descriptions = [
         "Ekonomiczna konfiguracja zapewniająca podstawową wydajność",
         "Zbalansowana konfiguracja oferująca dobry stosunek ceny do wydajności",
-        "Wysokowydajna konfiguracja dla najbardziej wymagających"
+        "Wysokowydajna konfiguracja dla najbardziej wymagających",
     ]
     price_multipliers = [0.8, 1.0, 1.2]  # Different price points for each suggestion
 
@@ -102,8 +69,8 @@ def get_suggestions():
                         "id": component.id,
                         "name": component.name,
                         "price": component.price,
-                        "description": generate_component_description(component, comp_type),
-                        "link": f"https://example.com/{comp_type}/{component.id}"  # Placeholder link
+                        "description": component.get_description(),
+                        "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
                     }
                     total_price += component.price
             else:
@@ -114,8 +81,8 @@ def get_suggestions():
                         "id": component.id,
                         "name": component.name,
                         "price": component.price,
-                        "description": generate_component_description(component, comp_type),
-                        "link": f"https://example.com/{comp_type}/{component.id}"  # Placeholder link
+                        "description": component.get_description(),
+                        "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
                     }
                     total_price += component.price
 
@@ -127,18 +94,20 @@ def get_suggestions():
             "category": "gaming" if "Gry" in purposes else "office",
             "components": components_dict,
             "comment": f"Ta konfiguracja została zoptymalizowana pod kątem {', '.join(purposes)}. "
-                      f"Całkowity koszt zestawu wynosi {int(total_price * price_multipliers[i])} PLN."
+            f"Całkowity koszt zestawu wynosi {int(total_price * price_multipliers[i])} PLN.",
         }
         suggestions.append(suggestion)
 
     response = jsonify(suggestions)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
 
 @api_bp.route("/getCpus", methods=["GET"])
 def get_cpus():
     all_cpus = CPU.query.all()
     return jsonify([c.to_json() for c in all_cpus])
+
 
 @api_bp.route("/getGpus", methods=["GET"])
 def get_gpus():

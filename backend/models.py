@@ -98,6 +98,14 @@ class CPU(Base):
             "graphics": self.graphics,
         }
 
+    def get_description(self):
+        return (
+            f"{self.name} - {self.core_count} rdzeni, "
+            f"taktowanie bazowe {self.core_clock}GHz, "
+            f"boost do {self.boost_clock}GHz, "
+            f"socket {self.socket}"
+        )
+
     @classmethod
     def from_dict(self, data: dict):
         return CPU(
@@ -201,6 +209,9 @@ class GPU(Base):
             "price": self.price,
         }
 
+    def get_description(self):
+        return f"{self.name} - socket {self.socket}, " f"rozmiar {self.size}mm"
+
     @classmethod
     def from_dict(self, data: dict):
         return GPU(
@@ -211,6 +222,13 @@ class GPU(Base):
             boost_clock=data.get("boost_clock", 0.0),
             tdp=data.get("tdp", 0.0),
             price=data.get("price", 0.0),
+        )
+
+    def get_description(self):
+        return (
+            f"{self.name} - {self.memory}GB pamięci, "
+            f"taktowanie rdzenia {self.core_clock}MHz, "
+            f"TDP {self.tdp}W"
         )
 
 
@@ -282,6 +300,13 @@ class Motherboard(Base):
             price=data.get("price", 0.0),
         )
 
+    def get_description(self):
+        return (
+            f"{self.name} - socket {self.socket}, "
+            f"format {self.form_factor}, "
+            f"pamięć {self.mem_type}"
+        )
+
 
 class RAM(Base):
     __tablename__ = "memory"
@@ -348,6 +373,12 @@ class RAM(Base):
             price=data.get("price", 0.0),
         )
 
+    def get_description(self):
+        return (
+            f"{self.name} - {self.capacity_gb}GB x{self.sticks}, "
+            f"{self.mem_type} {self.speed_mhz}MHz"
+        )
+
 
 class PowerSupply(Base):
     __tablename__ = "power_supplies"
@@ -402,6 +433,13 @@ class PowerSupply(Base):
             efficiency=data.get("efficiency"),
             color=data.get("color"),
             price=data.get("price", 0.0),
+        )
+
+    def get_description(self):
+        return (
+            f"{self.name} - {self.wattage}W, "
+            f"{self.efficiency}, "
+            f"{'modularny' if self.modular else 'niemodularny'}"
         )
 
 
@@ -472,6 +510,12 @@ class Case(Base):
             price=data.get("price", 0.0),
         )
 
+    def get_description(self):
+        return (
+            f"{self.name} - {self.type}, "
+            f"max. długość GPU {self.max_gpu_length_mm}mm"
+        )
+
 
 class StorageDrive(Base):
     __tablename__ = "storage_drives"
@@ -526,6 +570,13 @@ class StorageDrive(Base):
             capacity=data.get("capacity", 0),
             cache=data.get("cache", 0),
             price=data.get("price", 0.0),
+        )
+
+    def get_description(self):
+        return (
+            f"{self.name} - {self.type}, "
+            f"{self.capacity}GB, "
+            f"interfejs {self.interface}"
         )
 
 
