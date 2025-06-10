@@ -7,3 +7,5 @@ pyjwt
 psycopg2
 pymssql
 flask-cors
+openai
+python-dotenv
