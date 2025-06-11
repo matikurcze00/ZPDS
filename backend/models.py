@@ -17,6 +17,7 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 from database import db
 
 # Base = declarative_base()
@@ -167,9 +168,12 @@ class CPUCooler(Base):
 
     @classmethod
     def from_dict(self, data):
+        socket = data.get("socket", "")
+        if type(socket) == list:
+            socket = ",".join(socket)
         return CPUCooler(
             name=data.get("name"),
-            socket=data.get("socket"),
+            socket=socket,
             color=data.get("color"),
             size=data.get("size", 0.0),
             price=data.get("price", 0.0),
@@ -319,14 +323,20 @@ class Motherboard(Base):
 
     @classmethod
     def from_dict(self, data):
+        text = data.get("supported_memory_type_and_number_of_m2_slots", "")
+        parts = text.split(",")
+        try:
+            m2_slots = int(parts[1][1])
+        except:
+            m2_slots = 0
         return Motherboard(
             name=data.get("name"),
             socket=data.get("socket"),
             form_factor=data.get("form_factor"),
-            mem_type=data.get("mem_type"),
+            mem_type=parts[0],
             max_memory=data.get("max_memory", 0),
             memory_slots=data.get("memory_slots", 0),
-            m2_slots=data.get("m2_slots", 0),
+            m2_slots=m2_slots,
             color=data.get("color"),
             price=data.get("price", 0.0),
         )
