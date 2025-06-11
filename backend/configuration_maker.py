@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 from openai import OpenAI
 from suggestions import get_component_from_db, validate_set
 
-# from app import create_app
+from app import create_app
 import re
 from typing import Dict
 
@@ -15,7 +15,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = "gpt-4o-mini"
 
 MAX_ITERATIONS = 3  # zabezpieczenie przed pętlą bez końca
-TEMPERATURE = 0.3  # bardziej deterministycznie
+TEMPERATURE = 0.15  # bardziej deterministycznie
 SYSTEM_MSG = (
     "You are a helpful PC-building assistant. "
     "Return only valid JSON. Component names must be as short as possible, "
@@ -65,7 +65,7 @@ def get_setups(requirements: str) -> Dict:
         "Use realistic, search-friendly component names suitable for matching against a product database "
         "(e.g. 'AMD Ryzen 5 5600G', 'MSI B550M PRO-VDH').\n"
         "Use discrete GPUs only — do not use integrated graphics.\n"
-        "If in requirements parts are dont change them, always return them as they were.\n"
+        "If in requirements parts are given, dont change them, always return them as they were.\n"
         "in 'description' describe choosen setup and why it is a good choice. It should be written in Polish language.\n"
         "Avoid vague terms like 'Mid Tower' or 'Air Cooler'. Use specific model names whenever possible.\n\n"
         "Do NOT include markdown (like ```json), comments, explanations, or any text outside the JSON object.\n\n"
@@ -248,46 +248,63 @@ def build_pc_setups(initial_requirements: Dict) -> Dict:
 
 
 # -----------------------------  CLI demo  ------------------------------------
-# if __name__ == "__main__":
-#     requirements = {
-#         "purposes": ["games", "software development"],
-#         "price": 4000,
-#         "budget": {
-#             "gpu": "",
-#             "cpu": "",
-#             "motherboard": "",
-#             "ram": "",
-#             "power_supply": "",
-#             "case": "",
-#             "storage_drive": "",
-#             "cpu_cooler": "",
-#             "error": "",
-#         },  # "operating_system": "",
-#         "balanced": {
-#             "gpu": "",
-#             "cpu": "",
-#             "motherboard": "",
-#             "ram": "",
-#             "power_supply": "",
-#             "case": "",
-#             "storage_drive": "",
-#             "cpu_cooler": "",
-#             "error": "",
-#         },
-#         "efficient": {
-#             "gpu": "",
-#             "cpu": "",
-#             "motherboard": "",
-#             "ram": "",
-#             "power_supply": "",
-#             "case": "",
-#             "storage_drive": "",
-#             "cpu_cooler": "",
-#             "error": "",
-#         },
-#     }
-#     app = create_app()
+if __name__ == "__main__":
+    # requirements = {
+    #     "purposes": ["games", "software development"],
+    #     "price": 4000,
+    #     "chosen parts": {
+    #         "gpu": "MSI GeForce RTX 3060 Ventus 2X 12G",
+    #         "cpu": "Intel Core i5-14600KF",
+    #         "motherboard": "",
+    #         "ram": "",
+    #         "power_supply": "",
+    #         "case": "",
+    #         "storage_drive": "",
+    #         "cpu_cooler": "",
+    #         "error": "",
+    #     },  # "operating_system": "",
+    # }
+    
+    requirements = {
+        "purposes": ["games", "software development"],
+        "price": 5000,
+        "budget": {
+            "gpu": "MSI GeForce RTX 3060 Ventus 2X 12G",
+            "cpu": "Intel Core i5-14600KF",
+            "motherboard": "",
+            "ram": "",
+            "power_supply": "",
+            "case": "",
+            "storage_drive": "",
+            "cpu_cooler": "",
+            "error": "",
+        },  # "operating_system": "",
+        "balanced": {
+            "gpu": "MSI GeForce RTX 3060 Ventus 2X 12G",
+            "cpu": "Intel Core i5-14600KF",
+            "motherboard": "",
+            "ram": "",
+            "power_supply": "",
+            "case": "",
+            "storage_drive": "",
+            "cpu_cooler": "",
+            "error": "",
+        },
+        "efficient": {
+            "gpu": "MSI GeForce RTX 3060 Ventus 2X 12G",
+            "cpu": "Intel Core i5-14600KF",
+            "motherboard": "",
+            "ram": "",
+            "power_supply": "",
+            "case": "",
+            "storage_drive": "",
+            "cpu_cooler": "",
+            "error": "",
+        },
+    }
+    
+    app = create_app()
 
-#     with app.app_context():
-#         setups = build_pc_setups(requirements)
-#         print(json.dumps(setups, indent=2, ensure_ascii=False))
+    with app.app_context():
+        setups = build_pc_setups(requirements)
+        print(json.dumps(setups, indent=2, ensure_ascii=False))
