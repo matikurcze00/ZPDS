@@ -76,6 +76,7 @@ def ask_llm(part_type: str, attribute: str, names: List[str]) -> Dict[str, str]:
         ],
         response_format={"type": "json_object"},
         max_tokens=MAX_TOKENS_RESPONSE,
+        temperature=TEMPERATURE
     )
     return json.loads(rsp.choices[0].message.content)
 
