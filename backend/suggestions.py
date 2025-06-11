@@ -1,4 +1,5 @@
 from models import *
+from rapidfuzz import fuzz
 
 component_map = {
     "cpu": CPU,
@@ -20,6 +21,10 @@ def get_component_from_db(comp_type, component_name):
     if not comp_class:
         print(f"get_component_from_db -> Invalid component type: {comp_type}")
         return []
+    if comp_type == "gpu":
+        comp_class.query.filter(
+            comp_class.chipset.ilike("%" + component_name + "%")
+        ).all()
 
     return comp_class.query.filter(
         comp_class.name.ilike("%" + component_name + "%")
@@ -29,6 +34,8 @@ def get_component_from_db(comp_type, component_name):
 def validate_set(component_ids):
     """
     Check if the provided component IDs can create valid pc build.
+    return errors list<int> eg. [2, 5, 6, 7]
+    empty list means set is valid
     """
     cpu = CPU.query.get(component_ids.get("cpu"))
     gpu = GPU.query.get(component_ids.get("gpu"))
