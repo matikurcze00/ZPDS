@@ -12,9 +12,9 @@ from database import db
 parts_to_load = [
     ("cpu", CPU),
     ("cpu-cooler", CPUCooler),
-    ("video-card", GPU),
+    ("gpu", GPU),
     ("motherboard", Motherboard),
-    ("memory", RAM),
+    ("ram", RAM),
     ("power-supply", PowerSupply),
     ("case", Case),
     ("internal-hard-drive", StorageDrive),
@@ -35,7 +35,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        
+
         # Only load data if the database is empty (no CPUs exist)
         if not CPU.query.first():
             print("Loading initial data into database...")
