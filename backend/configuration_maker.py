@@ -54,15 +54,17 @@ def extract_json_block(text: str) -> str:
 
 def get_setups(requirements: str) -> Dict:
     prompt = (
-    "Generate a Python-style dictionary with three PC setups: "
-    "'Budget', 'Balanced', and 'Efficient'.\n"
-    "Each setup must contain exactly these keys: cpu, gpu, motherboard, ram, "
-    "power_supply, case, storage_drive, cpu_cooler, description.\n"
-    "For each component, return a realistic, search-friendly name as you would find it in an online store or a parts database. "
-    "Include manufacturer names or common model names where applicable (e.g. 'AMD Ryzen 5 5600G', 'MSI B550M PRO-VDH').\n"
-    "Avoid vague labels like 'Air Cooler' or 'Mid Tower' – prefer specific models if possible.\n"
-    "For GPU do not use Integrated graphics.\n"
-    "Return ONLY a valid JSON object. DO NOT include any explanation, comments, or formatting like ```json.\n\n"
+    "You are a JSON API. Respond ONLY with a valid JSON object, nothing else.\n\n"
+    "Your task is to generate a dictionary representing three PC builds: 'budget', 'balanced', and 'efficient'.\n"
+    "The JSON object must have exactly three top-level keys: 'budget', 'balanced', and 'efficient'.\n"
+    "Each of these keys must map to a dictionary with exactly the following keys:\n"
+    "cpu, gpu, motherboard, ram, power_supply, case, storage_drive, cpu_cooler, description.\n\n"
+    "Use realistic, search-friendly component names suitable for matching against a product database "
+    "(e.g. 'AMD Ryzen 5 5600G', 'MSI B550M PRO-VDH').\n"
+    "Use discrete GPUs only — do not use integrated graphics.\n"
+    "in 'description' describe choosen setup and why it is a good choice.\n"
+    "Avoid vague terms like 'Mid Tower' or 'Air Cooler'. Use specific model names whenever possible.\n\n"
+    "Do NOT include markdown (like ```json), comments, explanations, or any text outside the JSON object.\n\n"
     f"REQUIREMENTS:\n{requirements}"
 )
 
@@ -82,14 +84,9 @@ def get_candidates(unfiltered_setups: Dict) -> Tuple[Dict, Dict]:
     out = {"budget": {}, "balanced": {}, "efficient": {}}
     errors = {"budget": [], "balanced": [], "efficient": []}
 
-    chosen_parts_key = None
-    for key in ['chosen parts', 'chosen_parts']:
-        if key in unfiltered_setups:
-            chosen_parts_key = key
-            break
             
     for tier_key in out.keys():
-        for part_type, name in unfiltered_setups[chosen_parts_key][tier_key].items(): #TODO chosen parts or chosen_parts
+        for part_type, name in unfiltered_setups[tier_key].items(): 
             if part_type == "description":
                 continue
                 
@@ -100,15 +97,22 @@ def get_candidates(unfiltered_setups: Dict) -> Tuple[Dict, Dict]:
                 out[tier_key][part_type] = [{"id": m.id, "name": m.name} for m in matches]                
     return out, errors
 
-def map_missing_parts_to_errors(missing_parts: Dict) -> Dict:
-    """Konwertuje słownik brakujących części na komunikaty błędów"""
-    return {
-        tier: f"The folowing parts are not in database. Try another: {', '.join(f'{list(p.keys())[0]}: {list(p.values())[0]}' for p in parts)}" 
-        if parts else ""
-        for tier, parts in missing_parts.items()
-    }
+def map_missing_parts_to_errors(missing_parts: Dict) -> List[str]:
+    """Konwertuje słownik brakujących części na listę komunikatów błędów"""
+    messages = []
 
-def form_full_setup(
+    for tier, parts in missing_parts.items():
+        if not parts:
+            continue
+        msg = (
+            f"The folowing parts are not in database for '{tier}': "
+            + ", ".join(f"{list(p.keys())[0]}: {list(p.values())[0]}" for p in parts)
+        )
+        messages.append(msg)
+
+    return messages
+
+def form_fltered_setup(
     requirements: str,
     descriptions: Dict,
     candidates: Dict
@@ -120,24 +124,30 @@ def form_full_setup(
         setup_ids[tier], setup_names[tier] = {}, {}
         
         for ptype, cand_list in parts.items():
-            if len(cand_list) == 1:
+            if len(cand_list) == 0:
+                chosen = {"id": None, "name": ""}
+            elif len(cand_list) == 1:
                 chosen = cand_list[0]
             else:
                 # LLM wybiera z listy ID
                 prompt = (
-                    f"Based on these REQUIREMENTS:\n{requirements}\n\n"
-                    f"Select the best {ptype} for {tier} PC build from these candidates. "
-                    "Return JSON with single 'id' key holding the chosen candidate id.\n"
-                    f"CANDIDATES:\n{json.dumps(cand_list, ensure_ascii=False)}"
+                    f"You are a strict JSON API.\n\n"
+                    f"Given these REQUIREMENTS:\n{requirements}\n\n"
+                    f"And the following list of candidates for a {ptype} in the {tier} PC build:\n"
+                    f"{json.dumps(cand_list, ensure_ascii=False)}\n\n"
+                    "Select the best candidate and respond with ONLY this exact format:\n"
+                    '{"id": 123}\n'
+                    "Do NOT include any explanation, markdown, or comments. Respond with only a single-line JSON object exactly like above."
                 )
                 resp = _chat(prompt)
-                chosen_id = json.loads(resp)["id"]
+                parsed = json.loads(extract_json_block(resp))
+                chosen_id = parsed["id"]
                 chosen = next(c for c in cand_list if c["id"] == chosen_id)
 
             setup_ids[tier][ptype] = chosen["id"]
             setup_names[tier][ptype] = chosen["name"]
 
-        setup_names[tier]["description"] = descriptions[tier.capitalize()]["description"]
+        setup_names[tier]["description"] = descriptions[tier]["description"]
 
     return setup_ids, setup_names
 
@@ -154,18 +164,17 @@ def map_code_results_on_strings(results: List[int]) -> List[str]:
 def update_requirements(
     requirements: Dict,
     setup_with_names: Dict,
-    error_strings: List[str]
+    error_strings: Dict
 ) -> Dict:
     for i, tier in enumerate(["budget", "balanced", "efficient"]):
         if error_strings[i]:
             # „unfreeze” zestaw: usuń go z chosen_parts, zapisz błąd
-            requirements["chosen parts"][tier]["error"] = error_strings[i]
+            requirements[tier]["error"] = error_strings[i]
         else:
-            # zamroź poprawny
-            requirements["chosen parts"][tier].update(
-                {k: v for k, v in setup_with_names[tier].items() if k != "description"}
-            )
-            requirements["chosen parts"][tier]["error"] = ""
+            requirements[tier]["error"] = ""
+        requirements[tier].update(
+            {k: v for k, v in setup_with_names[tier].items() if k != "description"}
+        )
     return requirements
 
 # --------------------  Orchestrator  -----------------------------------------
@@ -176,12 +185,12 @@ def build_pc_setups(initial_requirements: Dict) -> Dict:
     
     # Najpierw rozwiązujemy problem brakujących części
     tries = 0
-    form_full_setup(req_json, unfiltered, candidates)
+    _, setup_names = form_fltered_setup(req_json, unfiltered, candidates)
     while any(missing_parts.values()) and tries < MAX_ITERATIONS:
         error_strings = map_missing_parts_to_errors(missing_parts)
         initial_requirements = update_requirements(
             initial_requirements, 
-            {},  # brak pełnych setupów - tylko error
+            setup_names,
             error_strings
         )
         
@@ -190,20 +199,23 @@ def build_pc_setups(initial_requirements: Dict) -> Dict:
         candidates, missing_parts = get_candidates(unfiltered)
         tries += 1
     
-    if any(missing_parts.values()):
-        raise RuntimeError(f"Could not find candidates for all parts after {MAX_ITERATIONS} tries")
-    setups_ids, setups_names = form_full_setup(req_json, unfiltered, candidates)
+    #TODO
+    # if any(missing_parts.values()):
+    #     raise RuntimeError(f"Could not find candidates for all parts after {MAX_ITERATIONS} tries")
+    setups_ids, setups_names = form_fltered_setup(req_json, unfiltered, candidates)
 
     tries = 0
     result = [1, 1, 1]  # dummy non-zero start
 
-    while result != [0, 0, 0] and tries < MAX_ITERATIONS:
+    while result !=  [".", ".", "."] and tries < MAX_ITERATIONS:
         # pętla przez trzy tier-y:
         result = []
         for tier in ["budget", "balanced", "efficient"]:
-            result_tier = validate_set(json.loads(setups_ids[tier]))
+            #TODO
+            # result_tier = validate_set(json.loads(setups_ids[tier]))
+            result_tier = ""
             result.append(result_tier)
-        if result == [0, 0, 0]:
+        if result == ["", "", ""]:
             break
 
         result_strings = map_code_results_on_strings(result)
@@ -213,22 +225,24 @@ def build_pc_setups(initial_requirements: Dict) -> Dict:
         req_json = json.dumps(initial_requirements, ensure_ascii=False)
         unfiltered = get_setups(req_json)
         candidates, missing_parts = get_candidates(unfiltered) # not secured missing missing_parts!!!        
-        setups_ids, setups_names = form_full_setup(req_json, unfiltered, candidates)
+        setups_ids, setups_names = form_fltered_setup(req_json, unfiltered, candidates)
         tries += 1
 
+    setups_ids["budget"]["description"] = unfiltered["budget"]["description"]
+    setups_ids["balanced"]["description"] = unfiltered["balanced"]["description"]
+    setups_ids["efficient"]["description"] = unfiltered["efficient"]["description"]
+
+    
     return setups_ids  # lub setups_names, zależnie co potrzebujesz
 
 # -----------------------------  CLI demo  ------------------------------------
 if __name__ == "__main__":
-    # ✂️  Wstaw tu prawdziwe wymagania użytkownika    
     requirements = {
         "purposes": ["games", "software development"],
-        "price": 5000,
-        "chosen parts": {
-            "budget": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "", "error": ""}, #"operating_system": "",  
-            "balanced": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "",  "error": ""},
-            "efficient": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "",  "error": ""},
-        },
+        "price": 4000,
+        "budget": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "", "error": ""}, #"operating_system": "",  
+        "balanced": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "",  "error": ""},
+        "efficient": {"gpu": "", "cpu": "","motherboard": "", "ram": "", "power_supply": "", "case": "", "storage_drive": "", "cpu_cooler": "",  "error": ""},
     }
     app = create_app()
 
