@@ -62,7 +62,7 @@ def get_setups(requirements: str) -> Dict:
     "Use realistic, search-friendly component names suitable for matching against a product database "
     "(e.g. 'AMD Ryzen 5 5600G', 'MSI B550M PRO-VDH').\n"
     "Use discrete GPUs only — do not use integrated graphics.\n"
-    "in 'description' describe choosen setup and why it is a good choice.\n"
+    "in 'description' describe choosen setup and why it is a good choice. It should be written in Polish language.\n"
     "Avoid vague terms like 'Mid Tower' or 'Air Cooler'. Use specific model names whenever possible.\n\n"
     "Do NOT include markdown (like ```json), comments, explanations, or any text outside the JSON object.\n\n"
     f"REQUIREMENTS:\n{requirements}"
