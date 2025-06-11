@@ -216,7 +216,7 @@ class GPU(Base):
         price=0.0,
     ):
         super().__init__()
-        self.name = name
+        self.name = f"{self.name} {self.chipset}"
         self.chipset = chipset
         self.length = length
         self.memory = memory
@@ -384,7 +384,7 @@ class RAM(Base):
         price=0.0,
     ):
         super().__init__()
-        self.name = name
+        self.name = f"{name} {mem_type}"
         self.mem_type = mem_type
         self.capacity_gb = capacity_gb
         self.sticks = sticks
@@ -466,7 +466,7 @@ class PowerSupply(Base):
         price=0.0,
     ):
         super().__init__()
-        self.name = name
+        self.name = f"{name} {wattage}W"
         self.wattage = wattage
         self.type = type
         self.modular = modular
@@ -613,7 +613,7 @@ class StorageDrive(Base):
         price=0.0,
     ):
         super().__init__()
-        self.name = name
+        self.name = f"{name} {capacity}GB"
         self.type = type
         self.interface = interface
         self.form_factor = form_factor
