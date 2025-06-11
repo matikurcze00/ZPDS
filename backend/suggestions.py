@@ -74,39 +74,39 @@ def validate_set(component_ids):
         print(f"validate_set -> Invalid components {component_ids}")
         return False
 
-    errors = []
+    errors = ""
     if not cpu.is_compatible(motherboard):
         print(
             f"validate_set -> CPU {cpu.name} is not compatible with motherboard {motherboard.name}"
         )
-        errors.append(1)
+        errors += "1"
     if not ram.is_compatible(motherboard):
         print(
             f"validate_set -> RAM {ram.name} is not compatible with motherboard {motherboard.name}"
         )
-        errors.append(2)
+        errors += "2"
     if not cpu_cooler.is_compatible(motherboard):
         print(
             f"validate_set -> CPU Cooler {cpu_cooler.name} is not compatible with CPU {cpu.name}"
         )
-        errors.append(3)
+        errors += "3"
     if not gpu.fits(case):
         print(f"validate_set -> GPU {gpu.name} does not fit in case {case.name}")
-        errors.append(4)
+        errors += "4"
     if motherboard.fits_in(case):
         print(
             f"validate_set -> Motherboard {motherboard.name} does not fit in case {case.name}"
         )
-        errors.append(5)
+        errors += "5"
     if not storage_drive.is_compatible(motherboard):
         print(
             f"validate_set -> Storage Drive {storage_drive.name} is not compatible with motherboard {motherboard.name}"
         )
-        errors.append(6)
+        errors += "6"
     if not power_supply.is_capable(motherboard, gpu, cpu):
         print(
             f"validate_set -> Power Supply {power_supply.name} is not capable of powering the components"
         )
-        errors.append(7)
+        errors += "7"
 
     return errors
