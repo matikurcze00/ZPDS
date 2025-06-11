@@ -220,8 +220,10 @@ def build_pc_setups(initial_requirements: Dict) -> Dict:
         result = []
         for tier in ["budget", "balanced", "efficient"]:
             # TODO
-            # result_tier = validate_set(json.loads(setups_ids[tier]))
-            result_tier = ""
+            print(setups_ids[tier])
+            result_tier = validate_set(setups_ids[tier])
+            print(result_tier)
+            # result_tier = ""
             result.append(result_tier)
         if result == ["", "", ""]:
             break
