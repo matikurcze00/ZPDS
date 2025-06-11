@@ -9,3 +9,4 @@ pymssql
 flask-cors
 openai
 python-dotenv
+rapidfuzz

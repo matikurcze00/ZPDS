@@ -21,14 +21,30 @@ def get_component_from_db(comp_type, component_name):
     if not comp_class:
         print(f"get_component_from_db -> Invalid component type: {comp_type}")
         return []
-    if comp_type == "gpu":
-        comp_class.query.filter(
-            comp_class.chipset.ilike("%" + component_name + "%")
-        ).all()
 
-    return comp_class.query.filter(
-        comp_class.name.ilike("%" + component_name + "%")
-    ).all()
+    matching_components = []
+    component_name = str.upper(component_name)
+    components = comp_class.query.all()
+
+    for comp in components:
+        if comp_type == "gpu":
+            ratio = fuzz.token_set_ratio(
+                str.upper(f"{comp.name} {comp.chipset}"), component_name
+            )
+        if comp_type == "power_supply":
+            ratio = fuzz.token_set_ratio(
+                str.upper(f"{comp.name} {comp.wattage}W"), component_name
+            )
+        if comp_type == "ram":
+            ratio = fuzz.token_set_ratio(
+                str.upper(f"{comp.name} {comp.mem_type}"), component_name
+            )
+        else:
+            ratio = fuzz.token_set_ratio(str.upper(comp.name), component_name)
+        if ratio > 90:
+            matching_components.append(comp)
+
+    return matching_components
 
 
 def validate_set(component_ids):

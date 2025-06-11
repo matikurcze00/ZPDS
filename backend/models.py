@@ -400,12 +400,14 @@ class RAM(Base):
 
     @classmethod
     def from_dict(self, data):
+        sticks = data.get("modules", 0)[0]
+        capacity_gp = data.get("modules", 0)[1] * sticks
         return RAM(
             name=data.get("name"),
             mem_type=data.get("mem_type"),
-            capacity_gb=data.get("capacity_gb", 0),
-            sticks=data.get("sticks", 0),
-            speed_mhz=data.get("speed_mhz", 0),
+            capacity_gb=capacity_gp,
+            sticks=sticks,
+            speed_mhz=data.get("speed", 0)[1],
             first_word_latency=data.get("first_word_latency", 0.0),
             cas_latency=data.get("cas_latency", 0.0),
             color=data.get("color"),
