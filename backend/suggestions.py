@@ -27,23 +27,6 @@ def get_component_from_db(comp_type, component_name):
     components = comp_class.query.all()
 
     for comp in components:
-        # if comp_type == "gpu":
-        #     ratio = fuzz.token_set_ratio(
-        #         str.upper(f"{comp.name} {comp.chipset}"), component_name
-        #     )
-        # if comp_type == "power_supply":
-        #     ratio = fuzz.token_set_ratio(
-        #         str.upper(f"{comp.name} {comp.wattage}W"), component_name
-        #     )
-        # if comp_type == "ram":
-        #     ratio = fuzz.token_set_ratio(
-        #         str.upper(f"{comp.name} {comp.mem_type}"), component_name
-        #     )
-        # if comp_type == "storage_drives":
-        #     ratio = fuzz.token_set_ratio(
-        #         str.upper(f"{comp.name} {comp.capacity}GB"), component_name
-        #     )
-        # else:
         ratio = fuzz.token_set_ratio(str.upper(comp.name), component_name)
         if ratio > 90:
             matching_components.append(comp)

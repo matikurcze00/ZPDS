@@ -66,34 +66,6 @@ def get_suggestions():
 
     recomendations = build_pc_setups(requirements)
 
-    # recomendations = {
-    #     "budget": {
-    #         "cpu": 4,
-    #         "motherboard": 20,
-    #         "power_supply": 533,
-    #         "case": 7,
-    #         "cpu_cooler": 11,
-    #         "description": "Ten zestaw to świetny wybór dla graczy i osób pracujących biurowo. Procesor Ryzen 5 5600G zapewnia dobrą wydajność, a karta GTX 1650 pozwala na granie w wiele gier w rozdzielczości 1080p. Zestaw jest również dobrze zbalansowany pod względem ceny i wydajności.",
-    #     },
-    #     "balanced": {
-    #         "cpu": 19,
-    #         "motherboard": 248,
-    #         "power_supply": 20,
-    #         "case": 84,
-    #         "storage_drive": 19,
-    #         "cpu_cooler": 155,
-    #         "description": "Zestaw ten oferuje doskonałą równowagę między wydajnością a ceną. Ryzen 7 5800X w połączeniu z RTX 3060 zapewnia świetne osiągi w grach oraz w pracy wielozadaniowej. Dodatkowo, szybki dysk NVMe przyspiesza ładowanie systemu i aplikacji.",
-    #     },
-    #     "efficient": {
-    #         "cpu": 4,
-    #         "motherboard": 66,
-    #         "case": 208,
-    #         "storage_drive": 3,
-    #         "cpu_cooler": 27,
-    #         "description": "Ten zestaw jest idealny dla osób szukających efektywności i wydajności w grach oraz pracy. Procesor Ryzen 5 5600X w połączeniu z RTX 3050 zapewnia płynne działanie w grach oraz dobrą wydajność w aplikacjach biurowych. Dodatkowo, szybki dysk NVMe przyspiesza wszystkie operacje.",
-    #     },
-    # }
-
     # Create three variations of suggestions
     suggestions = []
     base_names = ["Budżetowa", "Zbalansowana", "Wydajna"]
@@ -135,19 +107,16 @@ def get_suggestions():
                     total_price += component.price * DOLLAR_TO_PLN
             else:
                 print("else")
-                if recomendations[map_suggestions[i]].get(comp_type, None):
-                    component = comp_class.query.get(
-                        recomendations[map_suggestions[i]][comp_type]
-                    )
-                    if component:
-                        components_dict[comp_type] = {
-                            "id": component.id,
-                            "name": component.name,
-                            "price": round(component.price * DOLLAR_TO_PLN, 2),
-                            "description": component.get_description(),
-                            "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
-                        }
-                        total_price += component.price * DOLLAR_TO_PLN
+                component = comp_class.query.order_by(db.func.random()).first()
+                if component:
+                    components_dict[comp_type] = {
+                        "id": component.id,
+                        "name": component.name,
+                        "price": round(component.price * DOLLAR_TO_PLN, 2),
+                        "description": component.get_description(),
+                        "link": f"https://example.com/{comp_type}/{component.id}",  # Placeholder link
+                    }
+                    total_price += component.price * DOLLAR_TO_PLN
 
         # total_price = round(total_price * price_multipliers[i], 2)
         total_price = round(total_price, 2)

@@ -23,30 +23,6 @@ from database import db
 # Base = declarative_base()
 Base = db.Model
 
-# ────────────────────────────
-#  Association tables (M:N)
-# ────────────────────────────
-
-# CPU-cooler ↔ socket (jeden cooler pasuje do wielu socketów i odwrotnie)
-# cooler_socket = Table(
-#     "cooler_socket",
-#     Base.metadata,
-#     Column("cooler_id", ForeignKey("cpu_coolers.id"), primary_key=True),
-#     Column("socket", String, primary_key=True),
-# )
-
-# Case ↔ form-factor (obudowa może wspierać kilka standardów płyt)
-# case_form_factor = Table(
-#     "case_form_factor",
-#     Base.metadata,
-#     Column("case_id", ForeignKey("cases.id"), primary_key=True),
-#     Column("form_factor", String, primary_key=True),
-# )
-
-# ────────────────────────────
-#  Core part tables
-# ────────────────────────────
-
 DOLLAR_TO_PLN = 3.72  # Example conversion rate, adjust as needed
 
 
@@ -216,7 +192,7 @@ class GPU(Base):
         price=0.0,
     ):
         super().__init__()
-        self.name = f"{self.name} {self.chipset}"
+        self.name = f"{name} {chipset}"
         self.chipset = chipset
         self.length = length
         self.memory = memory
@@ -414,7 +390,7 @@ class RAM(Base):
         capacity_gp = data.get("modules", 0)[1] * sticks
         return RAM(
             name=data.get("name"),
-            mem_type=data.get("mem_type"),
+            mem_type=data.get("memory_type"),
             capacity_gb=capacity_gp,
             sticks=sticks,
             speed_mhz=data.get("speed", 0)[1],
@@ -662,24 +638,6 @@ class StorageDrive(Base):
         return True
 
 
-# ────────────────────────────
-#  Fake mapped classes for M:N “viewonly” rels
-# ────────────────────────────
-# class CPUCoolerSocket(Base):
-#     __tablename__ = "cooler_socket"  # reuse table
-#     cooler_id = Column(Integer, primary_key=True)
-#     socket = Column(String, primary_key=True)
-
-
-# class CaseFormFactor(Base):
-#     __tablename__ = "case_form_factor"  # reuse table
-#     case_id = Column(Integer, primary_key=True)
-#     form_factor = Column(String, primary_key=True)
-
-
-# ────────────────────────────
-#  Utility – create DB quickly
-# ────────────────────────────
 if __name__ == "__main__":
     engine = create_engine("sqlite:///pcparts.db")
     Base.metadata.create_all(engine)

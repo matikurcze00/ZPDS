@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 from openai import OpenAI
 from suggestions import get_component_from_db, validate_set
 
-from app import create_app
+# from app import create_app
 import re
 from typing import Dict
 
@@ -264,7 +264,7 @@ if __name__ == "__main__":
     #         "error": "",
     #     },  # "operating_system": "",
     # }
-    
+
     requirements = {
         "purposes": ["games", "software development"],
         "price": 5000,
@@ -302,7 +302,7 @@ if __name__ == "__main__":
             "error": "",
         },
     }
-    
+
     app = create_app()
 
     with app.app_context():
